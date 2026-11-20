@@ -1,0 +1,20 @@
+import AppKit
+
+// Writes Resources/AppIcon.icns from PineappleIcon.appIcon. Run via tools/make_icon.sh.
+let out = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
+try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+
+for points in [16, 32, 128, 256, 512] {
+    for scale in [1, 2] {
+        let pixels = points * scale
+        let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels,
+                                   bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                   colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        PineappleIcon.appIcon(size: CGFloat(pixels)).draw(in: NSRect(x: 0, y: 0, width: pixels, height: pixels))
+        NSGraphicsContext.restoreGraphicsState()
+        let name = "icon_\(points)x\(points)\(scale == 2 ? "@2x" : "").png"
+        try! rep.representation(using: .png, properties: [:])!.write(to: out.appendingPathComponent(name))
+    }
+}
