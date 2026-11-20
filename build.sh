@@ -15,6 +15,13 @@ swiftc -O \
     Sources/Pineapple/*.swift
 
 cp Info.plist "$APP/Contents/Info.plist"
+# Local settings from .env (not committed), copied into the app's Info.plist.
+if [ -f .env ]; then
+    profile=$(grep -E '^AWS_PROFILE=' .env | tail -n 1 | cut -d= -f2- | tr -d "\"' \r")
+    if [ -n "$profile" ]; then
+        plutil -insert PineappleAWSProfile -string "$profile" "$APP/Contents/Info.plist"
+    fi
+fi
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"  # regenerate with tools/make_icon.sh
 # Sign with a fixed local certificate so macOS keeps Screen Recording / Microphone
 # permission across rebuilds (ad-hoc signatures change every build and reset it).

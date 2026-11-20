@@ -20,7 +20,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private let defaults = UserDefaults.standard
     private var awsProfile: String {
-        get { defaults.string(forKey: "awsProfile") ?? "default" }
+        get { defaults.string(forKey: "awsProfile")
+            ?? Bundle.main.object(forInfoDictionaryKey: "PineappleAWSProfile") as? String // from .env at build time
+            ?? "default" }
         set { defaults.set(newValue, forKey: "awsProfile") }
     }
     private var languageCode: String {
